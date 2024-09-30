@@ -53,16 +53,16 @@ import javax.swing.SwingUtilities;
  */
 public class AppletHarness extends Applet {
 
-    public static final HashMap<LegacyApplication, Applet> appToApplet
+    private static final HashMap<LegacyApplication, Applet> appToApplet
                          = new HashMap<LegacyApplication, Applet>();
 
     protected JmeCanvasContext context;
     protected Canvas canvas;
     protected LegacyApplication app;
 
-    protected String appClass;
-    protected URL appCfg = null;
-    protected URL assetCfg = null;
+    private String appClass;
+    private URL appCfg = null;
+    private URL assetCfg = null;
 
     public static Applet getApplet(Application app){
         return appToApplet.get(app);
