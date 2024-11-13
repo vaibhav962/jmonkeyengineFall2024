@@ -82,9 +82,9 @@ public class AWTLoader implements AssetLoader {
         int y2 = 0;
         for (int y1 = 0; y1 < height / 2; y1++){
             y2 = height - y1 - 1;
-            System.arraycopy(img, y1 * scSz, sln, 0,         scSz);
+            System.arraycopy(img, y1 * scSz, sln, 0, scSz);
             System.arraycopy(img, y2 * scSz, img, y1 * scSz, scSz);
-            System.arraycopy(sln, 0,         img, y2 * scSz, scSz);
+            System.arraycopy(sln, 0, img, y2 * scSz, scSz);
         }
     }
 
@@ -95,9 +95,24 @@ public class AWTLoader implements AssetLoader {
         int y2 = 0;
         for (int y1 = 0; y1 < height / 2; y1++){
             y2 = height - y1 - 1;
-            System.arraycopy(img, y1 * scSz, sln, 0,         scSz);
+            System.arraycopy(img, y1 * scSz, sln, 0, scSz);
             System.arraycopy(img, y2 * scSz, img, y1 * scSz, scSz);
-            System.arraycopy(sln, 0,         img, y2 * scSz, scSz);
+            System.arraycopy(sln, 0, img, y2 * scSz, scSz);
+        }
+    }
+
+    // Helper method to put RGB or RGBA data into the buffer
+    private void putRGBData(ByteBuffer data, int rgb, boolean hasAlpha) {
+        // Red channel
+        data.put((byte) ((rgb & 0x00FF0000) >> 16));
+        // Green channel
+        data.put((byte) ((rgb & 0x0000FF00) >> 8));
+        // Blue channel
+        data.put((byte) ((rgb & 0x000000FF)));
+
+        if (hasAlpha) {
+            // Alpha channel
+            data.put((byte) ((rgb & 0xFF000000) >> 24));
         }
     }
 
@@ -110,17 +125,7 @@ public class AWTLoader implements AssetLoader {
             for (int x = 0; x < width; x++) {
                 int ny = flipY ? height - y - 1 : y;
                 int rgb = img.getRGB(x, ny);
-
-                if (hasAlpha) {
-                    data.put((byte) ((rgb & 0x00FF0000) >> 16));
-                    data.put((byte) ((rgb & 0x0000FF00) >> 8));
-                    data.put((byte) ((rgb & 0x000000FF)));
-                    data.put((byte) ((rgb & 0xFF000000) >> 24)); // Alpha
-                } else {
-                    data.put((byte) ((rgb & 0x00FF0000) >> 16));
-                    data.put((byte) ((rgb & 0x0000FF00) >> 8));
-                    data.put((byte) ((rgb & 0x000000FF)));
-                }
+                putRGBData(data, rgb, hasAlpha);  // Use the helper method
             }
         }
         data.flip();
@@ -148,7 +153,7 @@ public class AWTLoader implements AssetLoader {
                 byte[] dataBuf3 = (byte[]) extractImageData(img);
                 if (flipY)
                     flipImage(dataBuf3, width, height, 8);
-                ByteBuffer data3 = BufferUtils.createByteBuffer(img.getWidth()*img.getHeight());
+                ByteBuffer data3 = BufferUtils.createByteBuffer(img.getWidth() * img.getHeight());
                 data3.put(dataBuf3);
                 return new Image(Format.Luminance8, width, height, data3, null, com.jme3.texture.image.ColorSpace.sRGB);
             default:
